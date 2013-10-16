@@ -1,0 +1,25 @@
+{
+	"name": "oddnoc/silverstripe-artefactcleaner",
+	"description": "Find and optionally delete disused tables and fields in a SilverStripe database",
+	"type": "silverstripe-module",
+	"homepage": "https://github.com/oddnoc/silverstripe-artefactcleaner",
+	"keywords": ["silverstripe", "framework", "database", "utility"],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Fred Condo",
+			"email": "fred@fredcondo.net",
+			"homepage": "http://oddnoc.github.io",
+			"role": "developer"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/oddnoc/silverstripe-artefactcleaner/issues"
+	},
+	"require": {
+		"silverstripe/framework": "~3.0"
+	},
+	"extra": {
+		"installer-name": "artefactcleaner"
+	}
+}
