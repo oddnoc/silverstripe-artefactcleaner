@@ -12,4 +12,4 @@ doesn't delete those automatically. This task displays the obsolete
 columns and tables. It also provides a way to delete them. If you do
 that, there is no undo.
 
-Version: 1.0.2
+Version: 1.0.3
