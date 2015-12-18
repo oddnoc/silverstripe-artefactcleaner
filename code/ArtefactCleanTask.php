@@ -21,43 +21,33 @@ EOT;
     {
         if (!Director::is_cli()) {
             $this->writeln('This task works only on the command line. Exiting.');
+
             return;
         }
         $dropping = (boolean) $request->requestVar('dropping');
         $artefacts = $this->artefacts();
         if (empty($artefacts)) {
-            $this->writeln('## Schema is clean; nothing to drop. ##');
+            $this->headerln('Schema is clean; nothing to drop.', 2);
         } else {
             if ($dropping) {
-                $this->writeln('## Dropping artefacts ##');
+                $this->headerln('Dropping artefacts', 2);
             } else {
-                $this->writeln('## Listing artefacts ##');
+                $this->headerln('Listing artefacts', 2);
             }
-            if ($dropping) {
-                foreach ($artefacts as $table => $drop) {
-                    if (is_array($drop)) {
-                        $this->writeln('* '.$this->writeln($this->dropColumns($table, $drop)));
-                    } else {
-                        $this->writeln('* '.$this->writeln($this->dropTable($table)));
-                    }
-                }
-            } else {
-                foreach ($artefacts as $table => $drop) {
-                    if (is_array($drop)) {
-                        $this->writeln("* column {$table}.".implode("* column {$table}.", $drop));
-                    } else {
-                        $this->writeln("* table $table");
-                    }
+            foreach ($artefacts as $table => $drop) {
+                if (is_array($drop)) {
+                    $this->writeln('* '.$this->dropColumns($table, $drop, $dropping));
+                } else {
+                    $this->writeln('* '.$this->dropTable($table, $dropping));
                 }
             }
-            $this->writeln('## Next steps ##');
+            $this->headerln('Next step');
             if ($dropping) {
                 $this->writeln('Re-check for artefacts: sake /dev/tasks/'.__class__);
             } else {
-                $this->writeln("Delete the artefacts (IRREVERSIBLE!): sake dev/tasks/".__class__." '' dropping=1");
+                $this->writeln('Delete the artefacts (IRREVERSIBLE!): sake dev/tasks/'.__class__." '' dropping=1");
             }
         }
-        $this->writeln('<a href="/dev/tasks">Task list</a>');
     }
 
     private function artefacts()
@@ -95,27 +85,33 @@ EOT;
         return $artefacts;
     }
 
-    private function dropTable($table)
+    private function dropTable($table, $dropping = false)
     {
         $q = "DROP TABLE \"$table\"";
-        DB::query($q);
+        if ($dropping) {
+            DB::query($q);
+        }
 
         return $q;
     }
 
-    private function dropColumns($table, $columns)
+    private function dropColumns($table, $columns, $dropping = false)
     {
         $q = "ALTER TABLE \"$table\" DROP \"".implode('", DROP "', $columns).'"';
-        DB::query($q);
+        if ($dropping) {
+            DB::query($q);
+        }
 
         return $q;
+    }
+
+    private function headerln($s)
+    {
+        echo "\n## $s ##\n\n";
     }
 
     private function writeln($s)
     {
-        if (Director::is_cli()) {
-            $s = strip_tags($s, '<a>');
-        }
         echo "$s\n";
         flush();
     }
