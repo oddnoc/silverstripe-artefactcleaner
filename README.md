@@ -15,7 +15,7 @@ that, there is no undo.
 To install:
 
 ```sh
-composer require --dev oddnoc/artefactcleaner:*
+composer require --dev oddnoc/silverstripe-artefactcleaner:*
 ```
 
 Version: 1.0.3
