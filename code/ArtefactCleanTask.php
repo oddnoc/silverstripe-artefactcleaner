@@ -8,7 +8,7 @@ class ArtefactCleanTask extends BuildTask
 {
     protected $title = 'Show or Remove Database Artefacts';
     protected $description = <<<EOT
-During development of a SilverStripe application it is common to delete
+(CLI only) During development of a SilverStripe application it is common to delete
 a data object class or remove a field from a data object. This leaves
 obsolete columns and tables in your database. Because these columns or
 tables may contain data that you still want, the SilverStripe framework
@@ -19,40 +19,42 @@ EOT;
 
     public function run($request)
     {
+        if (!Director::is_cli()) {
+            $this->writeln('This task works only on the command line. Exiting.');
+            return;
+        }
         $dropping = (boolean) $request->requestVar('dropping');
         $artefacts = $this->artefacts();
         if (empty($artefacts)) {
-            $this->writeln('<h2>Schema is clean; nothing to drop.</h2>');
+            $this->writeln('## Schema is clean; nothing to drop. ##');
         } else {
             if ($dropping) {
-                $this->writeln('<h2>Dropping artefacts</h2>');
+                $this->writeln('## Dropping artefacts ##');
             } else {
-                $this->writeln('<h2>Listing artefacts</h2>');
+                $this->writeln('## Listing artefacts ##');
             }
-            $this->writeln('<ul>');
             if ($dropping) {
                 foreach ($artefacts as $table => $drop) {
                     if (is_array($drop)) {
-                        $this->writeln('<li>'.$this->redText($this->dropColumns($table, $drop)));
+                        $this->writeln('* '.$this->writeln($this->dropColumns($table, $drop)));
                     } else {
-                        $this->writeln('<li>'.$this->redText($this->dropTable($table)));
+                        $this->writeln('* '.$this->writeln($this->dropTable($table)));
                     }
                 }
             } else {
                 foreach ($artefacts as $table => $drop) {
                     if (is_array($drop)) {
-                        $this->writeln("<li>column {$table}.".implode("<li>column {$table}.", $drop));
+                        $this->writeln("* column {$table}.".implode("* column {$table}.", $drop));
                     } else {
-                        $this->writeln("<li>table $table");
+                        $this->writeln("* table $table");
                     }
                 }
             }
-            $this->writeln('</ul>');
-            $this->writeln('<h2>Next steps</h2>');
+            $this->writeln('## Next steps ##');
             if ($dropping) {
-                $this->writeln('<a href="/dev/tasks/'.__class__.'">Re-check for artefacts</a><br>');
+                $this->writeln('Re-check for artefacts: sake /dev/tasks/'.__class__);
             } else {
-                $this->writeln('<a href="/dev/tasks/'.__class__.'?dropping=1">Delete the artefacts (irreversible)</a><br>');
+                $this->writeln("Delete the artefacts (IRREVERSIBLE!): sake dev/tasks/".__class__." '' dropping=1");
             }
         }
         $this->writeln('<a href="/dev/tasks">Task list</a>');
@@ -107,11 +109,6 @@ EOT;
         DB::query($q);
 
         return $q;
-    }
-
-    private function redText($s)
-    {
-        return "<span style=\"color: red;\">$s</span>";
     }
 
     private function writeln($s)
