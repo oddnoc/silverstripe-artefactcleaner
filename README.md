@@ -12,4 +12,10 @@ doesn't delete those automatically. This task displays the obsolete
 columns and tables. It also provides a way to delete them. If you do
 that, there is no undo.
 
+To install:
+
+```sh
+composer require --dev oddnoc/artefactcleaner:*
+```
+
 Version: 1.0.3
