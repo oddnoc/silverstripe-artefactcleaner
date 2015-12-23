@@ -59,7 +59,6 @@ EOT;
             $oldschema[$dbtablename] = DB::getConn()->fieldList($dbtablename);
         }
 
-        DB::getConn()->selectDatabase('tmpdb');
         $test = new SapphireTest();
         $test->create_temp_db();
         foreach (DB::getConn()->tableList() as $lowercase => $dbtablename) {
