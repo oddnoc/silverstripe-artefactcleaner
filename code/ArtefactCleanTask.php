@@ -27,12 +27,12 @@ EOT;
         $dropping = (boolean) $request->requestVar('dropping');
         $artefacts = $this->artefacts();
         if (empty($artefacts)) {
-            $this->headerln('Schema is clean; nothing to drop.', 2);
+            $this->headerln('Schema is clean; nothing to drop.');
         } else {
             if ($dropping) {
-                $this->headerln('Dropping artefacts', 2);
+                $this->headerln('Dropping artefacts');
             } else {
-                $this->headerln('Listing artefacts', 2);
+                $this->headerln('Listing artefacts');
             }
             foreach ($artefacts as $table => $drop) {
                 if (is_array($drop)) {
