@@ -7,7 +7,7 @@
 class ArtefactCleanTask extends BuildTask
 {
     protected $title = 'Show or Remove Database Artefacts';
-    protected $description = <<<EOT
+    protected $description = <<<'EOT'
 (CLI only) During development of a SilverStripe application it is common to delete
 a data object class or remove a field from a data object. This leaves
 obsolete columns and tables in your database. Because these columns or
@@ -24,7 +24,7 @@ EOT;
 
             return;
         }
-        $dropping = (boolean) $request->requestVar('dropping');
+        $dropping = (bool) $request->requestVar('dropping');
         $artefacts = $this->artefacts();
         if (empty($artefacts)) {
             $this->headerln('Schema is clean; nothing to drop.');
@@ -52,8 +52,8 @@ EOT;
 
     private function artefacts()
     {
-        $oldschema = array();
-        $newschema = array();
+        $oldschema = [];
+        $newschema = [];
         $current = DB::getConn()->currentDatabase();
         foreach (DB::getConn()->tableList() as $lowercase => $dbtablename) {
             $oldschema[$dbtablename] = DB::getConn()->fieldList($dbtablename);
@@ -67,7 +67,7 @@ EOT;
         $test->kill_temp_db();
         DB::getConn()->selectDatabase($current);
 
-        $artefacts = array();
+        $artefacts = [];
         foreach ($oldschema as $table => $fields) {
             if (!isset($newschema[strtolower($table)])) {
                 $artefacts[$table] = $table;
