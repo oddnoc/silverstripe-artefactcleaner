@@ -50,6 +50,9 @@ EOT;
         }
     }
 
+    /**
+     * @return array
+     */
     private function artefacts()
     {
         $oldschema = [];
