@@ -19,11 +19,6 @@ EOT;
 
     public function run($request)
     {
-        if (!Director::is_cli()) {
-            $this->writeln('This task works only on the command line. Exiting.');
-
-            return;
-        }
         $dropping = (bool) $request->requestVar('dropping');
         $artefacts = $this->artefacts();
         if (empty($artefacts)) {
@@ -109,12 +104,12 @@ EOT;
 
     private function headerln($s)
     {
-        echo "\n## $s ##\n\n";
+        echo "<br>## $s ##<br><br>";
     }
 
     private function writeln($s)
     {
-        echo "$s\n";
+        echo "$s<br>";
         flush();
     }
 }
