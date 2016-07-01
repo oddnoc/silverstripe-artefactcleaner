@@ -22,7 +22,7 @@
     "issues": "https://github.com/oddnoc/silverstripe-artefactcleaner/issues"
   },
   "require": {
-    "silverstripe/framework": "~3.0",
+    "silverstripe/framework": "~3.2",
     "phpunit/PHPUnit": "~3.7"
   },
   "extra": {
