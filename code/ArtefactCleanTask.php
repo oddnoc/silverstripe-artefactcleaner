@@ -7,7 +7,7 @@
 class ArtefactCleanTask extends BuildTask
 {
     protected $title = 'Show or Remove Database Artefacts';
-    protected $description = <<<EOT
+    protected $description = <<<'EOT'
 (CLI only) During development of a SilverStripe application it is common to delete
 a data object class or remove a field from a data object. This leaves
 obsolete columns and tables in your database. Because these columns or
@@ -24,7 +24,7 @@ EOT;
 
             return;
         }
-        $dropping = (boolean) $request->requestVar('dropping');
+        $dropping = (bool) $request->requestVar('dropping');
         $artefacts = $this->artefacts();
         if (empty($artefacts)) {
             $this->headerln('Schema is clean; nothing to drop.');
@@ -50,24 +50,27 @@ EOT;
         }
     }
 
+    /**
+     * @return array
+     */
     private function artefacts()
     {
-        $oldschema = array();
-        $newschema = array();
-        $current = DB::getConn()->currentDatabase();
-        foreach (DB::getConn()->tableList() as $lowercase => $dbtablename) {
-            $oldschema[$dbtablename] = DB::getConn()->fieldList($dbtablename);
+        $oldschema = [];
+        $newschema = [];
+        $current = DB::get_conn()->getSelectedDatabase();
+        foreach (DB::table_list() as $lowercase => $dbtablename) {
+            $oldschema[$dbtablename] = DB::field_list($dbtablename);
         }
 
         $test = new SapphireTest();
         $test->create_temp_db();
-        foreach (DB::getConn()->tableList() as $lowercase => $dbtablename) {
-            $newschema[$lowercase] = DB::getConn()->fieldList($dbtablename);
+        foreach (DB::table_list() as $lowercase => $dbtablename) {
+            $newschema[$lowercase] = DB ::field_list($dbtablename);
         }
         $test->kill_temp_db();
-        DB::getConn()->selectDatabase($current);
+        DB::get_conn()->selectDatabase($current);
 
-        $artefacts = array();
+        $artefacts = [];
         foreach ($oldschema as $table => $fields) {
             if (!isset($newschema[strtolower($table)])) {
                 $artefacts[$table] = $table;

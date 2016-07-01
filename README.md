@@ -25,4 +25,6 @@ To install:
 composer require --dev oddnoc/silverstripe-artefactcleaner:^2.0.0
 ```
 
-Version: 2.0.1
+![helpfulrobot](https://helpfulrobot.io/oddnoc/silverstripe-artefactcleaner/badge)
+
+Version: 3.0.0
