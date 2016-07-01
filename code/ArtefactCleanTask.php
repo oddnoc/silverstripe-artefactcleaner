@@ -52,18 +52,18 @@ EOT;
     {
         $oldschema = [];
         $newschema = [];
-        $current = DB::getConn()->currentDatabase();
-        foreach (DB::getConn()->tableList() as $lowercase => $dbtablename) {
-            $oldschema[$dbtablename] = DB::getConn()->fieldList($dbtablename);
+        $current = DB::get_conn()->getSelectedDatabase();
+        foreach (DB::table_list() as $lowercase => $dbtablename) {
+            $oldschema[$dbtablename] = DB::field_list($dbtablename);
         }
 
         $test = new SapphireTest();
         $test->create_temp_db();
-        foreach (DB::getConn()->tableList() as $lowercase => $dbtablename) {
-            $newschema[$lowercase] = DB::getConn()->fieldList($dbtablename);
+        foreach (DB::table_list() as $lowercase => $dbtablename) {
+            $newschema[$lowercase] = DB ::field_list($dbtablename);
         }
         $test->kill_temp_db();
-        DB::getConn()->selectDatabase($current);
+        DB::get_conn()->selectDatabase($current);
 
         $artefacts = [];
         foreach ($oldschema as $table => $fields) {
