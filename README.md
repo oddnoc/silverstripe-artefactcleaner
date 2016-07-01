@@ -22,7 +22,7 @@ sake dev/tasks/ArtefactCleanTask '' dropping=1
 To install:
 
 ```sh
-composer require --dev oddnoc/silverstripe-artefactcleaner:^2.0.0
+composer require --dev oddnoc/silverstripe-artefactcleaner
 ```
 
 ![helpfulrobot](https://helpfulrobot.io/oddnoc/silverstripe-artefactcleaner/badge)
