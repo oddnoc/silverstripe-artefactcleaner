@@ -19,11 +19,6 @@ EOT;
 
     public function run($request)
     {
-        if (!Director::is_cli()) {
-            $this->writeln('This task works only on the command line. Exiting.');
-
-            return;
-        }
         $dropping = (bool) $request->requestVar('dropping');
         $artefacts = $this->artefacts();
         if (empty($artefacts)) {
@@ -53,7 +48,7 @@ EOT;
     /**
      * @return array
      */
-    private function artefacts()
+    public function artefacts()
     {
         $oldschema = [];
         $newschema = [];
@@ -87,7 +82,7 @@ EOT;
         return $artefacts;
     }
 
-    private function dropTable($table, $dropping = false)
+    public function dropTable($table, $dropping = false)
     {
         $q = "DROP TABLE \"$table\"";
         if ($dropping) {
@@ -97,7 +92,7 @@ EOT;
         return $q;
     }
 
-    private function dropColumns($table, $columns, $dropping = false)
+    public function dropColumns($table, $columns, $dropping = false)
     {
         $q = "ALTER TABLE \"$table\" DROP \"".implode('", DROP "', $columns).'"';
         if ($dropping) {
@@ -109,12 +104,12 @@ EOT;
 
     private function headerln($s)
     {
-        echo "\n## $s ##\n\n";
+        echo "<br>## $s ##<br><br>";
     }
 
     private function writeln($s)
     {
-        echo "$s\n";
+        echo "$s<br>";
         flush();
     }
 }
