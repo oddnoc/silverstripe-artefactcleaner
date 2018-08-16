@@ -25,4 +25,4 @@ To install:
 composer require --dev oddnoc/silverstripe-artefactcleaner
 ```
 
-Version: 3.0.0
+Version: 3.0.1
