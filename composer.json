@@ -22,7 +22,7 @@
     "issues": "https://github.com/oddnoc/silverstripe-artefactcleaner/issues"
   },
   "require": {
-    "silverstripe/framework": "~3.2"
+    "silverstripe/framework": "~4.2"
   },
   "extra": {
     "installer-name": "artefactcleaner"
