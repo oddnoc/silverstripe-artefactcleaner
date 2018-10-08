@@ -1,7 +1,7 @@
 {
   "name": "oddnoc/silverstripe-artefactcleaner",
   "description": "Find and optionally delete disused tables and fields in a SilverStripe database",
-  "type": "silverstripe-module",
+  "type": "silverstripe-vendormodule",
   "homepage": "https://github.com/oddnoc/silverstripe-artefactcleaner",
   "keywords": [
     "silverstripe",
