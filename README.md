@@ -1,30 +1,34 @@
-silverstripe-artefactcleaner
-============================
+# SilverStripe ArtefactCleaner
 
-Find and optionally delete disused tables and fields in a SilverStripe database.
+Find and optionally delete unused tables, columns and indexes in a SilverStripe database.
 
-During development of a SilverStripe application it is common to delete a data
-object class or remove a field from a data object. This leaves obsolete columns
-and tables in your database. Because these columns or tables may contain data
-that you still want, the SilverStripe framework doesn't delete those
-automatically. This task displays the obsolete columns and tables in the form of
-SQL `DROP` and `ALTER` commands. It also provides a way to delete them. If you
-do that, **there is no undo**, so always make a backup first.
+SilverStripe uses an automatic schema creation tool that leaves behind old and
+obsolete tables, columns and indexes.
 
-This task runs only on the CLI, so it needs an empty parameter to do the actual
-dropping:
+This packages will show you, and optionally delete for you, those artefacts.
+
+## Installation
 
 ```sh
-sake dev/tasks/ArtefactCleanTask
-sake dev/tasks/ArtefactCleanTask '' dropping=1
+composer require --dev jmfederico/silverstripe-artefactcleaner
 ```
 
-To install:
+## Usage
+
+Invoke the task via the command line or the browser.
+
 
 ```sh
-composer require --dev oddnoc/silverstripe-artefactcleaner
+vendor/bin/sake dev/tasks/ArtefactCleanTask
+vendor/bin/sake dev/tasks/ArtefactCleanTask dropping=1
 ```
 
-![helpfulrobot](https://helpfulrobot.io/oddnoc/silverstripe-artefactcleaner/badge)
+```
+https://yoursite.com/dev/tasks/ArtefactCleanTask
+https://yoursite.com/dev/tasks/ArtefactCleanTask?dropping=1
+```
 
-Version: 3.0.0
+## Credits:
+
+- https://github.com/oddnoc/silverstripe-artefactcleaner
+- https://github.com/smindel/silverstripe-dbplumber
