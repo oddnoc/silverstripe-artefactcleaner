@@ -30,5 +30,4 @@ https://yoursite.com/dev/tasks/ArtefactCleanTask?dropping=1
 
 ## Credits:
 
-- https://github.com/oddnoc/silverstripe-artefactcleaner
 - https://github.com/smindel/silverstripe-dbplumber
