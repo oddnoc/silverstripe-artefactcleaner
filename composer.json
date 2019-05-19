@@ -1,6 +1,6 @@
 {
   "name": "oddnoc/silverstripe-artefactcleaner",
-  "description": "Find and optionally delete disused tables and fields in a SilverStripe database",
+  "description": "Find and optionally delete unused tables, columns and indexes in a SilverStripe database",
   "type": "silverstripe-vendormodule",
   "homepage": "https://github.com/oddnoc/silverstripe-artefactcleaner",
   "keywords": [
@@ -15,6 +15,12 @@
       "name": "Fred Condo",
       "email": "fred@fredcondo.net",
       "homepage": "http://oddnoc.github.io",
+      "role": "developer"
+    },
+    {
+      "name": "Federico Jaramillo",
+      "email": "federicojaramillom@gmail.com",
+      "homepage": "https://github.com/jmfederico",
       "role": "developer"
     }
   ],

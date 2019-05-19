@@ -10,7 +10,7 @@ This packages will show you, and optionally delete for you, those artefacts.
 ## Installation
 
 ```sh
-composer require --dev jmfederico/silverstripe-artefactcleaner
+composer require --dev oddnoc/silverstripe-artefactcleaner
 ```
 
 ## Usage
