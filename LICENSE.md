@@ -24,7 +24,7 @@ This module is based on a bit of code that was originally part of the
 [DBPlumber module](https://github.com/smindel/silverstripe-dbplumber).
 Hence, here is its license:
 
-Copyright © 2008, Silverstripe Ltd.
+Copyright © 2008, Silverstripe Ltd.  
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
