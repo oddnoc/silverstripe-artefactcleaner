@@ -1,4 +1,4 @@
-# SilverStripe ArtefactCleaner
+# SilverStripe Artefact Cleaner
 
 Find and optionally delete unused tables, columns and indexes in a SilverStripe database.
 

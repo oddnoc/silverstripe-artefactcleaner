@@ -12,9 +12,7 @@ use SilverStripe\ORM\DB;
 class ArtefactCleanTask extends BuildTask
 {
     protected $title = 'Display [remove] Database Artefacts';
-    protected $description = <<<'EOT'
-Display, and optionally run, queries to delete obsolete columns, indexes and tables.
-EOT;
+    protected $description = 'Display and optionally run queries to delete obsolete columns, indexes, and tables.';
 
     public function run($request)
     {
@@ -24,7 +22,6 @@ EOT;
             $this->headerLine('Schema is clean; nothing to drop.');
             return;
         }
-
         switch ($dropping) {
             case true:
                 $this->headerLine('Dropping artefacts');
@@ -34,19 +31,16 @@ EOT;
                 $this->headerLine('SQL queries');
                 break;
         }
-
         foreach ($artefacts as $table => $drop) {
             $this->cleanTable($table, $drop, $dropping);
         }
         $this->headerLine('Next step');
-
         switch ($dropping) {
             case true:
                 $this->writeLine('Re-checking for artefacts');
                 $request->offsetUnset('dropping');
                 $this->run($request);
                 break;
-
             case false:
                 $this->writeLine('Delete the artefacts (IRREVERSIBLE!):');
                 $this->writeLine('');
@@ -68,7 +62,6 @@ EOT;
             $oldSchema[$dbTableName]['indexes'] = DB::get_schema()->indexList($dbTableName);
             $oldSchema[$dbTableName]['fields'] = DB::field_list($dbTableName);
         }
-
         $test = new TempDatabase();
         $test->build();
         foreach (DB::table_list() as $lowercase => $dbTableName) {
@@ -78,20 +71,17 @@ EOT;
         }
         $test->kill();
         DB::get_conn()->selectDatabase($current);
-
         $artefacts = [];
         foreach ($oldSchema as $table => $data) {
             if (!isset($newSchema[strtolower($table)])) {
                 $artefacts[$table] = $table;
                 continue;
             }
-
             foreach ($data['fields'] as $field => $spec) {
                 if (!isset($newSchema[strtolower($table)]['fields'][$field])) {
                     $artefacts[$table]['fields'][$field] = $field;
                 }
             }
-
             foreach ($data['indexes'] as $index => $spec) {
                 if (!isset($newSchema[strtolower($table)]['indexes'][$index])) {
                     $artefacts[$table]['indexes'][$index] = $index;
@@ -113,7 +103,6 @@ EOT;
             }
             return;
         }
-
         $this->writeLine($this->dropTable($table, $dropping));
     }
 
