@@ -1,52 +1,51 @@
 <?php
 
+use SilverStripe\Control\Director;
+use SilverStripe\Dev\BuildTask;
+use SilverStripe\Dev\CLI;
+use SilverStripe\ORM\Connect\TempDatabase;
+use SilverStripe\ORM\DB;
+
 /**
- * Adapted from DB Plumber module
- * https://github.com/smindel/silverstripe-dbplumber.
+ * SilverStripe task that deletes unused Tables, Columns and Indexes.
  */
 class ArtefactCleanTask extends BuildTask
 {
-    protected $title = 'Show or Remove Database Artefacts';
-    protected $description = <<<'EOT'
-(CLI only) During development of a SilverStripe application it is common to delete
-a data object class or remove a field from a data object. This leaves
-obsolete columns and tables in your database. Because these columns or
-tables may contain data that you still want, the SilverStripe framework
-doesn't delete those automatically. This task displays the obsolete
-columns and tables. It also provides a way to delete them. If you do
-that, there is no undo.
-EOT;
+    protected $title = 'Display [remove] Database Artefacts';
+    protected $description = 'Display and optionally run queries to delete obsolete columns, indexes, and tables.';
 
     public function run($request)
     {
-        if (!Director::is_cli()) {
-            $this->writeln('This task works only on the command line. Exiting.');
-
-            return;
-        }
         $dropping = (bool) $request->requestVar('dropping');
         $artefacts = $this->artefacts();
         if (empty($artefacts)) {
-            $this->headerln('Schema is clean; nothing to drop.');
-        } else {
-            if ($dropping) {
-                $this->headerln('Dropping artefacts');
-            } else {
-                $this->headerln('Listing artefacts');
-            }
-            foreach ($artefacts as $table => $drop) {
-                if (is_array($drop)) {
-                    $this->writeln('* '.$this->dropColumns($table, $drop, $dropping));
-                } else {
-                    $this->writeln('* '.$this->dropTable($table, $dropping));
-                }
-            }
-            $this->headerln('Next step');
-            if ($dropping) {
-                $this->writeln('Re-check for artefacts: sake /dev/tasks/'.__class__);
-            } else {
-                $this->writeln('Delete the artefacts (IRREVERSIBLE!): sake dev/tasks/'.__class__." '' dropping=1");
-            }
+            $this->headerLine('Schema is clean; nothing to drop.');
+            return;
+        }
+        switch ($dropping) {
+            case true:
+                $this->headerLine('Dropping artefacts');
+                break;
+
+            case false:
+                $this->headerLine('SQL queries');
+                break;
+        }
+        foreach ($artefacts as $table => $drop) {
+            $this->cleanTable($table, $drop, $dropping);
+        }
+        $this->headerLine('Next step');
+        switch ($dropping) {
+            case true:
+                $this->writeLine('Re-checking for artefacts');
+                $request->offsetUnset('dropping');
+                $this->run($request);
+                break;
+            case false:
+                $this->writeLine('Delete the artefacts (IRREVERSIBLE!):');
+                $this->writeLine('');
+                $this->writeLine('  vendor/bin/sake dev/tasks/' . __class__ . ' dropping=1');
+                break;
         }
     }
 
@@ -55,31 +54,37 @@ EOT;
      */
     private function artefacts()
     {
-        $oldschema = [];
-        $newschema = [];
+        $oldSchema = [];
+        $newSchema = [];
         $current = DB::get_conn()->getSelectedDatabase();
-        foreach (DB::table_list() as $lowercase => $dbtablename) {
-            $oldschema[$dbtablename] = DB::field_list($dbtablename);
+        foreach (DB::table_list() as $lowercase => $dbTableName) {
+            $oldSchema[$dbTableName] = ['indexes'=> [], 'fields' => []];
+            $oldSchema[$dbTableName]['indexes'] = DB::get_schema()->indexList($dbTableName);
+            $oldSchema[$dbTableName]['fields'] = DB::field_list($dbTableName);
         }
-
-        $test = new SapphireTest();
-        $test->create_temp_db();
-        foreach (DB::table_list() as $lowercase => $dbtablename) {
-            $newschema[$lowercase] = DB ::field_list($dbtablename);
+        $test = new TempDatabase();
+        $test->build();
+        foreach (DB::table_list() as $lowercase => $dbTableName) {
+            $newSchema[$lowercase] = ['indexes'=> [], 'fields' => []];
+            $newSchema[$lowercase]['indexes'] = DB::get_schema()->indexList($dbTableName);
+            $newSchema[$lowercase]['fields'] = DB::field_list($dbTableName);
         }
-        $test->kill_temp_db();
+        $test->kill();
         DB::get_conn()->selectDatabase($current);
-
         $artefacts = [];
-        foreach ($oldschema as $table => $fields) {
-            if (!isset($newschema[strtolower($table)])) {
+        foreach ($oldSchema as $table => $data) {
+            if (!isset($newSchema[strtolower($table)])) {
                 $artefacts[$table] = $table;
                 continue;
             }
-
-            foreach ($fields as $field => $spec) {
-                if (!isset($newschema[strtolower($table)][$field])) {
-                    $artefacts[$table][$field] = $field;
+            foreach ($data['fields'] as $field => $spec) {
+                if (!isset($newSchema[strtolower($table)]['fields'][$field])) {
+                    $artefacts[$table]['fields'][$field] = $field;
+                }
+            }
+            foreach ($data['indexes'] as $index => $spec) {
+                if (!isset($newSchema[strtolower($table)]['indexes'][$index])) {
+                    $artefacts[$table]['indexes'][$index] = $index;
                 }
             }
         }
@@ -87,34 +92,64 @@ EOT;
         return $artefacts;
     }
 
-    private function dropTable($table, $dropping = false)
+    private function cleanTable($table, $drop, $dropping)
     {
-        $q = "DROP TABLE \"$table\"";
+        if (is_array($drop)) {
+            if (isset($drop['indexes']) && $drop['indexes']) {
+                $this->writeLine($this->dropIndexes($table, $drop['indexes'], $dropping));
+            }
+            if (isset($drop['fields']) && $drop['fields']) {
+                $this->writeLine($this->dropColumns($table, $drop['fields'], $dropping));
+            }
+            return;
+        }
+        $this->writeLine($this->dropTable($table, $dropping));
+    }
+
+    private function dropTable($table, $dropping)
+    {
+        $query = sprintf('DROP TABLE `%s`', $table);
         if ($dropping) {
-            DB::query($q);
+            DB::query($query);
+        }
+        return $query;
+    }
+
+    private function dropColumns($table, $columns, $dropping)
+    {
+        $query = sprintf('ALTER TABLE `%s` DROP `%s`', $table, implode('`, DROP `', $columns));
+        if ($dropping) {
+            DB::query($query);
+        }
+        return $query;
+    }
+
+    private function dropIndexes($table, $indexes, $dropping)
+    {
+        $query = sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, implode('`, DROP `', $indexes));
+        if ($dropping) {
+            DB::query($query);
+        }
+        return $query;
+    }
+
+    private function headerLine($message)
+    {
+        if (Director::is_cli()) {
+            echo CLI::text("\n## $message ##\n", 'cyan');
+            return;
         }
 
-        return $q;
+        echo CLI::text("<strong>$message</strong>");
     }
 
-    private function dropColumns($table, $columns, $dropping = false)
+    private function writeLine($message)
     {
-        $q = "ALTER TABLE \"$table\" DROP \"".implode('", DROP "', $columns).'"';
-        if ($dropping) {
-            DB::query($q);
+        if (Director::is_cli()) {
+            echo CLI::text("  $message\n", 'yellow');
+            return;
         }
 
-        return $q;
-    }
-
-    private function headerln($s)
-    {
-        echo "\n## $s ##\n\n";
-    }
-
-    private function writeln($s)
-    {
-        echo "$s\n";
-        flush();
+        echo CLI::text("<p>$message</p>");
     }
 }

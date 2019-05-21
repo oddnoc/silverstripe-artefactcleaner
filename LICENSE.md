@@ -1,6 +1,7 @@
 The MIT License (MIT)
 
 Copyright © 2013–2016 Fred Condo
+Copyright © 2018 Federico Jaramillo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +24,7 @@ This module is based on a bit of code that was originally part of the
 [DBPlumber module](https://github.com/smindel/silverstripe-dbplumber).
 Hence, here is its license:
 
-Copyright © 2008, Silverstripe Ltd.
+Copyright © 2008, Silverstripe Ltd.  
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
