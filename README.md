@@ -31,4 +31,4 @@ vendor/bin/sake dev/tasks/ArtefactCleanTask dropping=1
 
 ## Version
 
-3.0.1
+4.0.0
