@@ -108,7 +108,7 @@ class ArtefactCleanTask extends BuildTask
 
     private function dropTable($table, $dropping)
     {
-        $query = sprintf('DROP TABLE `%s`', $table);
+        $query = sprintf('DROP TABLE IF EXISTS `%s`', $table);
         if ($dropping) {
             DB::query($query);
         }
@@ -117,7 +117,11 @@ class ArtefactCleanTask extends BuildTask
 
     private function dropColumns($table, $columns, $dropping)
     {
-        $query = sprintf('ALTER TABLE `%s` DROP `%s`', $table, implode('`, DROP `', $columns));
+        $query = sprintf(
+            'ALTER TABLE `%s` DROP IF EXISTS `%s`',
+            $table,
+            implode('`, DROP IF EXISTS `', $columns)
+        );
         if ($dropping) {
             DB::query($query);
         }
@@ -126,7 +130,11 @@ class ArtefactCleanTask extends BuildTask
 
     private function dropIndexes($table, $indexes, $dropping)
     {
-        $query = sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, implode('`, DROP `', $indexes));
+        $query = sprintf(
+            'ALTER TABLE `%s` DROP INDEX IF EXISTS `%s`',
+            $table,
+            implode('`, DROP INDEX IF EXISTS `', $indexes)
+        );
         if ($dropping) {
             DB::query($query);
         }
