@@ -1,5 +1,8 @@
 # Change log
 
+* 4.0.1
+    * Add `IF EXISTS` to database manipulations to prevent crashes
+
 * 4.0.0
     * Compatible with framework ~4.2
     * Check for and remove unused indexes
