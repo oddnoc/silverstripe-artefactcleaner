@@ -1,5 +1,8 @@
 # Change log
 
+* 4.0.2
+    * Make `IF EXISTS` opt-in. It available for columns and indexes only in MariaDB, not MySQL.
+
 * 4.0.1
     * Add `IF EXISTS` to database manipulations to prevent crashes
 
