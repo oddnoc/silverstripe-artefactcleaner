@@ -13,10 +13,13 @@ class ArtefactCleanTask extends BuildTask
 {
     protected $title = 'Display [remove] Database Artefacts';
     protected $description = 'Display and optionally run queries to delete obsolete columns, indexes, and tables.';
+    private const IFEXISTS = 'IF EXISTS';
+    private $if_exists;
 
     public function run($request)
     {
         $dropping = (bool) $request->requestVar('dropping');
+        $this->if_exists = $request->requestVar('ifexists') ? self::IFEXISTS : '';
         $artefacts = $this->artefacts();
         if (empty($artefacts)) {
             $this->headerLine('Schema is clean; nothing to drop.');
@@ -45,6 +48,7 @@ class ArtefactCleanTask extends BuildTask
                 $this->writeLine('Delete the artefacts (IRREVERSIBLE!):');
                 $this->writeLine('');
                 $this->writeLine('  vendor/bin/sake dev/tasks/' . __class__ . ' dropping=1');
+                $this->writeLine('  vendor/bin/sake dev/tasks/' . __class__ . ' dropping=1 ifexists=1');
                 break;
         }
     }
@@ -108,7 +112,7 @@ class ArtefactCleanTask extends BuildTask
 
     private function dropTable($table, $dropping)
     {
-        $query = sprintf('DROP TABLE IF EXISTS `%s`', $table);
+        $query = sprintf('DROP TABLE %s `%s`', $this->if_exists, $table);
         if ($dropping) {
             DB::query($query);
         }
@@ -118,9 +122,10 @@ class ArtefactCleanTask extends BuildTask
     private function dropColumns($table, $columns, $dropping)
     {
         $query = sprintf(
-            'ALTER TABLE `%s` DROP IF EXISTS `%s`',
+            'ALTER TABLE `%s` DROP %s `%s`',
             $table,
-            implode('`, DROP IF EXISTS `', $columns)
+            $this->if_exists,
+            implode(sprintf('`, DROP %s `', $this->if_exists), $columns)
         );
         if ($dropping) {
             DB::query($query);
@@ -131,9 +136,10 @@ class ArtefactCleanTask extends BuildTask
     private function dropIndexes($table, $indexes, $dropping)
     {
         $query = sprintf(
-            'ALTER TABLE `%s` DROP INDEX IF EXISTS `%s`',
+            'ALTER TABLE `%s` DROP INDEX %s `%s`',
             $table,
-            implode('`, DROP INDEX IF EXISTS `', $indexes)
+            $this->if_exists,
+            implode(sprintf('`, DROP INDEX %s `', $this->if_exists), $indexes)
         );
         if ($dropping) {
             DB::query($query);
