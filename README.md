@@ -19,7 +19,7 @@ Invoke the task via the command line or the browser. If you are running mariadb 
 ```sh
 vendor/bin/sake dev/tasks/ArtefactCleanTask
 vendor/bin/sake dev/tasks/ArtefactCleanTask dropping=1
-vendor/bin/sake dev/tasks/ArtefactCleanTask dropping=1&ifexists=1
+vendor/bin/sake dev/tasks/ArtefactCleanTask dropping=1 ifexists=1
 ```
 
 * https://example.org/dev/tasks/ArtefactCleanTask
