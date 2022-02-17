@@ -7,7 +7,8 @@
     "silverstripe",
     "framework",
     "database",
-    "utility"
+    "utility",
+    "obsolete"
   ],
   "license": "MIT",
   "authors": [
