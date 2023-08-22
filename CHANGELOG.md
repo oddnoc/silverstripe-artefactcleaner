@@ -1,7 +1,7 @@
 # Change log
 
 * 5.0.0
-    * Compatible with framework ~5.0
+    * Compatible with framework ^5.0
     * Update standards to PHP 8
 
 * 4.0.2

@@ -1,7 +1,5 @@
 <?php
 
-//namespace Oddnoc\ArtefactCleaner\Tasks;
-
 use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\Dev\CLI;
@@ -53,8 +51,8 @@ class ArtefactCleanTask extends BuildTask
             case false:
                 $this->writeLine('Delete the artefacts (IRREVERSIBLE!):');
                 $this->writeLine('');
-                $this->writeLine('  vendor/bin/sake dev/tasks/' . self::class . ' dropping=1');
-                $this->writeLine('  vendor/bin/sake dev/tasks/' . self::class . ' dropping=1 ifexists=1');
+                $this->writeLine('- vendor/bin/sake dev/tasks/' . self::class . ' dropping=1');
+                $this->writeLine('- vendor/bin/sake dev/tasks/' . self::class . ' dropping=1 ifexists=1');
                 break;
         }
     }
