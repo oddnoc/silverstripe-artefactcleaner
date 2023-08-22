@@ -1,6 +1,6 @@
 <?php
 
-namespace Oddnoc\ArtefactCleaner\Tasks;
+//namespace Oddnoc\ArtefactCleaner\Tasks;
 
 use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
@@ -18,28 +18,32 @@ class ArtefactCleanTask extends BuildTask
     private const IFEXISTS = 'IF EXISTS';
     private $if_exists;
 
-    public function run($request)
+    public function run($request): void
     {
-        $dropping = (bool) $request->requestVar('dropping');
+        $dropping = (bool)$request->requestVar('dropping');
         $this->if_exists = $request->requestVar('ifexists') ? self::IFEXISTS : '';
         $artefacts = $this->artefacts();
+
         if (empty($artefacts)) {
             $this->headerLine('Schema is clean; nothing to drop.');
             return;
         }
+
         switch ($dropping) {
             case true:
                 $this->headerLine('Dropping artefacts');
                 break;
-
             case false:
                 $this->headerLine('SQL queries');
                 break;
         }
+
         foreach ($artefacts as $table => $drop) {
             $this->cleanTable($table, $drop, $dropping);
         }
+
         $this->headerLine('Next step');
+
         switch ($dropping) {
             case true:
                 $this->writeLine('Re-checking for artefacts');
@@ -49,8 +53,8 @@ class ArtefactCleanTask extends BuildTask
             case false:
                 $this->writeLine('Delete the artefacts (IRREVERSIBLE!):');
                 $this->writeLine('');
-                $this->writeLine('  vendor/bin/sake dev/tasks/' . __class__ . ' dropping=1');
-                $this->writeLine('  vendor/bin/sake dev/tasks/' . __class__ . ' dropping=1 ifexists=1');
+                $this->writeLine('  vendor/bin/sake dev/tasks/' . self::class . ' dropping=1');
+                $this->writeLine('  vendor/bin/sake dev/tasks/' . self::class . ' dropping=1 ifexists=1');
                 break;
         }
     }
@@ -58,7 +62,7 @@ class ArtefactCleanTask extends BuildTask
     /**
      * @return array
      */
-    private function artefacts()
+    private function artefacts(): array
     {
         $oldSchema = [];
         $newSchema = [];
@@ -98,7 +102,7 @@ class ArtefactCleanTask extends BuildTask
         return $artefacts;
     }
 
-    private function cleanTable($table, $drop, $dropping)
+    private function cleanTable(string $table, $drop, bool $dropping): void
     {
         if (is_array($drop)) {
             if (isset($drop['indexes']) && $drop['indexes']) {
@@ -112,7 +116,7 @@ class ArtefactCleanTask extends BuildTask
         $this->writeLine($this->dropTable($table, $dropping));
     }
 
-    private function dropTable($table, $dropping)
+    private function dropTable(string $table, bool $dropping): string
     {
         $query = sprintf('DROP TABLE %s `%s`', $this->if_exists, $table);
         if ($dropping) {
@@ -121,7 +125,7 @@ class ArtefactCleanTask extends BuildTask
         return $query;
     }
 
-    private function dropColumns($table, $columns, $dropping)
+    private function dropColumns(string $table, array $columns, bool $dropping): string
     {
         $query = sprintf(
             'ALTER TABLE `%s` DROP %s `%s`',
@@ -135,7 +139,7 @@ class ArtefactCleanTask extends BuildTask
         return $query;
     }
 
-    private function dropIndexes($table, $indexes, $dropping)
+    private function dropIndexes(string $table, array $indexes, bool $dropping): string
     {
         $query = sprintf(
             'ALTER TABLE `%s` DROP INDEX %s `%s`',
@@ -149,7 +153,7 @@ class ArtefactCleanTask extends BuildTask
         return $query;
     }
 
-    private function headerLine($message)
+    private function headerLine(string $message): void
     {
         if (Director::is_cli()) {
             echo CLI::text("\n## $message ##\n", 'cyan');
@@ -159,10 +163,10 @@ class ArtefactCleanTask extends BuildTask
         echo CLI::text("<strong>$message</strong>");
     }
 
-    private function writeLine($message)
+    private function writeLine(string $message): void
     {
         if (Director::is_cli()) {
-            echo CLI::text("  $message\n", 'yellow');
+            echo CLI::text("$message\n", 'yellow');
             return;
         }
 
