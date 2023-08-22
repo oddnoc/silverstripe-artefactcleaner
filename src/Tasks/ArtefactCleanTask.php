@@ -1,5 +1,7 @@
 <?php
 
+namespace Oddnoc\ArtefactCleaner\Tasks;
+
 use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\Dev\CLI;
