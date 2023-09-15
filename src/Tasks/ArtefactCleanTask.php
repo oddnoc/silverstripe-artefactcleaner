@@ -1,5 +1,7 @@
 <?php
 
+namespace Oddnoc\ArtefactCleaner\Task;
+
 use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\Dev\CLI;
@@ -15,6 +17,7 @@ class ArtefactCleanTask extends BuildTask
     protected $description = 'Display and optionally run queries to delete obsolete columns, indexes, and tables.';
     private const IFEXISTS = 'IF EXISTS';
     private $if_exists;
+    private static $segment = 'ArtefactCleanTask';
 
     public function run($request): void
     {
