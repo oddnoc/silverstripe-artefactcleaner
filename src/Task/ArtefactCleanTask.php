@@ -1,5 +1,7 @@
 <?php
 
+namespace Oddnoc\ArtefactCleaner\Task;
+
 use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\Dev\CLI;
@@ -11,33 +13,38 @@ use SilverStripe\ORM\DB;
  */
 class ArtefactCleanTask extends BuildTask
 {
-    protected $title = 'Display [remove] Database Artefacts';
-    protected $description = 'Display and optionally run queries to delete obsolete columns, indexes, and tables.';
     private const IFEXISTS = 'IF EXISTS';
+    protected $description = 'Display and optionally run queries to delete obsolete columns, indexes, and tables.';
+    protected $title = 'Display [remove] Database Artefacts';
     private $if_exists;
+    private static $segment = 'ArtefactCleanTask';
 
-    public function run($request)
+    public function run($request): void
     {
-        $dropping = (bool) $request->requestVar('dropping');
+        $dropping = (bool)$request->requestVar('dropping');
         $this->if_exists = $request->requestVar('ifexists') ? self::IFEXISTS : '';
         $artefacts = $this->artefacts();
+
         if (empty($artefacts)) {
             $this->headerLine('Schema is clean; nothing to drop.');
             return;
         }
+
         switch ($dropping) {
             case true:
                 $this->headerLine('Dropping artefacts');
                 break;
-
             case false:
                 $this->headerLine('SQL queries');
                 break;
         }
+
         foreach ($artefacts as $table => $drop) {
             $this->cleanTable($table, $drop, $dropping);
         }
+
         $this->headerLine('Next step');
+
         switch ($dropping) {
             case true:
                 $this->writeLine('Re-checking for artefacts');
@@ -47,8 +54,8 @@ class ArtefactCleanTask extends BuildTask
             case false:
                 $this->writeLine('Delete the artefacts (IRREVERSIBLE!):');
                 $this->writeLine('');
-                $this->writeLine('  vendor/bin/sake dev/tasks/' . __class__ . ' dropping=1');
-                $this->writeLine('  vendor/bin/sake dev/tasks/' . __class__ . ' dropping=1 ifexists=1');
+                $this->writeLine('- vendor/bin/sake dev/tasks/' . self::$segment . ' dropping=1');
+                $this->writeLine('- vendor/bin/sake dev/tasks/' . self::$segment . ' dropping=1 ifexists=1');
                 break;
         }
     }
@@ -56,20 +63,20 @@ class ArtefactCleanTask extends BuildTask
     /**
      * @return array
      */
-    private function artefacts()
+    private function artefacts(): array
     {
         $oldSchema = [];
         $newSchema = [];
         $current = DB::get_conn()->getSelectedDatabase();
         foreach (DB::table_list() as $lowercase => $dbTableName) {
-            $oldSchema[$dbTableName] = ['indexes'=> [], 'fields' => []];
+            $oldSchema[$dbTableName] = ['indexes' => [], 'fields' => []];
             $oldSchema[$dbTableName]['indexes'] = DB::get_schema()->indexList($dbTableName);
             $oldSchema[$dbTableName]['fields'] = DB::field_list($dbTableName);
         }
         $test = new TempDatabase();
         $test->build();
         foreach (DB::table_list() as $lowercase => $dbTableName) {
-            $newSchema[$lowercase] = ['indexes'=> [], 'fields' => []];
+            $newSchema[$lowercase] = ['indexes' => [], 'fields' => []];
             $newSchema[$lowercase]['indexes'] = DB::get_schema()->indexList($dbTableName);
             $newSchema[$lowercase]['fields'] = DB::field_list($dbTableName);
         }
@@ -96,7 +103,7 @@ class ArtefactCleanTask extends BuildTask
         return $artefacts;
     }
 
-    private function cleanTable($table, $drop, $dropping)
+    private function cleanTable(string $table, $drop, bool $dropping): void
     {
         if (is_array($drop)) {
             if (isset($drop['indexes']) && $drop['indexes']) {
@@ -110,16 +117,7 @@ class ArtefactCleanTask extends BuildTask
         $this->writeLine($this->dropTable($table, $dropping));
     }
 
-    private function dropTable($table, $dropping)
-    {
-        $query = sprintf('DROP TABLE %s `%s`', $this->if_exists, $table);
-        if ($dropping) {
-            DB::query($query);
-        }
-        return $query;
-    }
-
-    private function dropColumns($table, $columns, $dropping)
+    private function dropColumns(string $table, array $columns, bool $dropping): string
     {
         $query = sprintf(
             'ALTER TABLE `%s` DROP %s `%s`',
@@ -133,7 +131,7 @@ class ArtefactCleanTask extends BuildTask
         return $query;
     }
 
-    private function dropIndexes($table, $indexes, $dropping)
+    private function dropIndexes(string $table, array $indexes, bool $dropping): string
     {
         $query = sprintf(
             'ALTER TABLE `%s` DROP INDEX %s `%s`',
@@ -147,23 +145,32 @@ class ArtefactCleanTask extends BuildTask
         return $query;
     }
 
-    private function headerLine($message)
+    private function dropTable(string $table, bool $dropping): string
     {
-        if (Director::is_cli()) {
-            echo CLI::text("\n## $message ##\n", 'cyan');
-            return;
+        $query = sprintf('DROP TABLE %s `%s`', $this->if_exists, $table);
+        if ($dropping) {
+            DB::query($query);
         }
-
-        echo CLI::text("<strong>$message</strong>");
+        return $query;
     }
 
-    private function writeLine($message)
+    private function headerLine(string $message): void
     {
         if (Director::is_cli()) {
-            echo CLI::text("  $message\n", 'yellow');
+            echo CLI::text("\n## {$message} ##\n", 'cyan');
             return;
         }
 
-        echo CLI::text("<p>$message</p>");
+        echo CLI::text("<strong>{$message}</strong>");
+    }
+
+    private function writeLine(string $message): void
+    {
+        if (Director::is_cli()) {
+            echo CLI::text("{$message}\n", 'yellow');
+            return;
+        }
+
+        echo CLI::text("<p>{$message}</p>");
     }
 }
