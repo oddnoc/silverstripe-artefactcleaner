@@ -54,8 +54,8 @@ class ArtefactCleanTask extends BuildTask
             case false:
                 $this->writeLine('Delete the artefacts (IRREVERSIBLE!):');
                 $this->writeLine('');
-                $this->writeLine('- vendor/bin/sake dev/tasks/' . self::class . ' dropping=1');
-                $this->writeLine('- vendor/bin/sake dev/tasks/' . self::class . ' dropping=1 ifexists=1');
+                $this->writeLine('- vendor/bin/sake dev/tasks/' . self::$segment . ' dropping=1');
+                $this->writeLine('- vendor/bin/sake dev/tasks/' . self::$segment . ' dropping=1 ifexists=1');
                 break;
         }
     }
