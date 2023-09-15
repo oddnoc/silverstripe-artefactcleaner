@@ -1,34 +1,44 @@
 {
-  "name": "oddnoc/silverstripe-artefactcleaner",
-  "description": "Find and optionally delete unused tables, columns and indexes in a SilverStripe database",
-  "type": "silverstripe-vendormodule",
-  "homepage": "https://github.com/oddnoc/silverstripe-artefactcleaner",
-  "keywords": [
-    "silverstripe",
-    "framework",
-    "database",
-    "utility",
-    "obsolete"
-  ],
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Fred Condo",
-      "email": "fred@fredcondo.net",
-      "homepage": "http://oddnoc.github.io",
-      "role": "developer"
+    "name": "oddnoc/silverstripe-artefactcleaner",
+    "description": "Find and optionally delete unused tables, columns and indexes in a SilverStripe database",
+    "type": "silverstripe-vendormodule",
+    "homepage": "https://github.com/oddnoc/silverstripe-artefactcleaner",
+    "keywords": [
+        "silverstripe",
+        "framework",
+        "database",
+        "utility",
+        "obsolete"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Fred Condo",
+            "email": "fred@fredcondo.net",
+            "homepage": "http://oddnoc.github.io",
+            "role": "developer"
+        },
+        {
+            "name": "Federico Jaramillo",
+            "email": "federicojaramillom@gmail.com",
+            "homepage": "https://github.com/jmfederico",
+            "role": "developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/oddnoc/silverstripe-artefactcleaner/issues"
     },
-    {
-      "name": "Federico Jaramillo",
-      "email": "federicojaramillom@gmail.com",
-      "homepage": "https://github.com/jmfederico",
-      "role": "developer"
-    }
-  ],
-  "support": {
-    "issues": "https://github.com/oddnoc/silverstripe-artefactcleaner/issues"
-  },
-  "require": {
-    "silverstripe/framework": "^4.2"
-  }
+    "require": {
+        "silverstripe/framework": "^5.0"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Oddnoc\\ArtefactCleaner\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
