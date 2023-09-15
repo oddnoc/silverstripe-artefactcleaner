@@ -37,4 +37,4 @@ This package was inspired by [silverstripe-dbplumber](https://github.com/smindel
 
 ## Version
 
-5.0.0
+4.1.0
