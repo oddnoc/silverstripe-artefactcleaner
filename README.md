@@ -1,3 +1,5 @@
+⚠️ This project has moved. It is now maintained at [https://codeberg.org/odnoc/silverstripe-artefactcleaner](https://codeberg.org/odnoc/silverstripe-artefactcleaner)
+
 # Silverstripe Database Artefact Cleaner
 
 The Silverstripe Database Artefact Cleaner identifies and offers the option to remove unused tables, columns, and indexes in a Silverstripe database.
