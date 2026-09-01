@@ -1,0 +1,219 @@
+diff --git a/composer.json b/composer.json
+index ebeccdd..2314196 100644
+--- a/composer.json
++++ b/composer.json
+@@ -1,50 +1,50 @@
+ {
+-    "name": "oddnoc/silverstripe-artefactcleaner",
+-    "description": "Find and optionally delete unused tables, columns and indexes in a SilverStripe database",
+-    "type": "silverstripe-vendormodule",
+-    "homepage": "https://github.com/oddnoc/silverstripe-artefactcleaner",
+-    "keywords": [
+-        "silverstripe",
+-        "framework",
+-        "database",
+-        "utility",
+-        "obsolete"
+-    ],
+-    "license": "MIT",
+-    "authors": [
+-        {
+-            "name": "Fred Condo",
+-            "email": "fred@fredcondo.com",
+-            "homepage": "https://oddnoc.github.io",
+-            "role": "developer"
+-        },
+-        {
+-            "name": "Federico Jaramillo",
+-            "email": "federicojaramillom@gmail.com",
+-            "homepage": "https://github.com/jmfederico",
+-            "role": "developer"
+-        }
+-    ],
+-    "support": {
+-        "issues": "https://github.com/oddnoc/silverstripe-artefactcleaner/issues"
++  "name": "oddnoc/silverstripe-artefactcleaner",
++  "description": "Find and optionally delete unused tables, columns and indexes in a SilverStripe database",
++  "type": "silverstripe-vendormodule",
++  "homepage": "https://github.com/oddnoc/silverstripe-artefactcleaner",
++  "keywords": [
++    "silverstripe",
++    "framework",
++    "database",
++    "utility",
++    "obsolete"
++  ],
++  "license": "MIT",
++  "authors": [
++    {
++      "name": "Fred Condo",
++      "email": "fred@fredcondo.com",
++      "homepage": "https://oddnoc.github.io",
++      "role": "developer"
+     },
+-    "require": {
+-        "silverstripe/framework": "^4.0 || ^5.0"
+-    },
+-    "require-dev": {
+-        "squizlabs/php_codesniffer": "^3.7"
+-    },
+-    "autoload": {
+-        "psr-4": {
+-            "Oddnoc\\ArtefactCleaner\\": "src/"
+-        }
+-    },
+-    "minimum-stability": "dev",
+-    "prefer-stable": true,
+-    "config": {
+-        "allow-plugins": {
+-            "composer/installers": true,
+-            "silverstripe/vendor-plugin": true
+-        }
++    {
++      "name": "Federico Jaramillo",
++      "email": "federicojaramillom@gmail.com",
++      "homepage": "https://github.com/jmfederico",
++      "role": "developer"
++    }
++  ],
++  "support": {
++    "issues": "https://github.com/oddnoc/silverstripe-artefactcleaner/issues"
++  },
++  "require": {
++    "silverstripe/framework": "^6.0"
++  },
++  "require-dev": {
++    "squizlabs/php_codesniffer": "^3.7"
++  },
++  "autoload": {
++    "psr-4": {
++      "Oddnoc\\ArtefactCleaner\\": "src/"
++    }
++  },
++  "minimum-stability": "dev",
++  "prefer-stable": true,
++  "config": {
++    "allow-plugins": {
++      "composer/installers": true,
++      "silverstripe/vendor-plugin": true
+     }
++  }
+ }
+diff --git a/src/Task/ArtefactCleanTask.php b/src/Task/ArtefactCleanTask.php
+index 8812e5b..87822ad 100644
+--- a/src/Task/ArtefactCleanTask.php
++++ b/src/Task/ArtefactCleanTask.php
+@@ -2,36 +2,40 @@
+ 
+ namespace Oddnoc\ArtefactCleaner\Task;
+ 
+-use SilverStripe\Control\Director;
+ use SilverStripe\Dev\BuildTask;
+-use SilverStripe\Dev\CLI;
+ use SilverStripe\ORM\Connect\TempDatabase;
+ use SilverStripe\ORM\DB;
++use SilverStripe\PolyExecution\PolyOutput;
++use Symfony\Component\Console\Command\Command;
++use Symfony\Component\Console\Input\InputInterface;
++use Symfony\Component\Console\Input\InputOption;
+ 
+ /**
+  * SilverStripe task that deletes unused Tables, Columns and Indexes.
+  */
+ class ArtefactCleanTask extends BuildTask
+ {
+-    private const IFEXISTS = 'IF EXISTS';
++    private const string IFEXISTS = 'IF EXISTS';
+ 
+-    protected $description = 'Display and optionally run queries to delete obsolete columns, indexes, and tables.';
++    protected static string $description = 'Display and optionally run queries to delete obsolete columns, indexes, and tables.';
+ 
+-    protected $title = 'Display [remove] Database Artefacts';
++    protected string $title = 'Display [remove] Database Artefacts';
+ 
+     private $if_exists;
+ 
+-    private static $segment = 'ArtefactCleanTask';
++    protected static string $commandName = 'artefact-clean';
+ 
+-    public function run($request): void
++    private PolyOutput $output;
++
++    protected function execute(InputInterface $input, PolyOutput $output): int
+     {
+-        $dropping = (bool)$request->requestVar('dropping');
+-        $this->if_exists = $request->requestVar('ifexists') ? self::IFEXISTS : '';
++        $this->output = $output;
++        $dropping = (bool)$input->getOption('dropping');
++        $this->if_exists = $input->getOption('ifexists') ? self::IFEXISTS : '';
+         $artefacts = $this->artefacts();
+-
+         if ($artefacts === []) {
+             $this->headerLine('Schema is clean; nothing to drop.');
+-            return;
++            return Command::SUCCESS;
+         }
+ 
+         switch ($dropping) {
+@@ -48,20 +52,22 @@ class ArtefactCleanTask extends BuildTask
+         }
+ 
+         $this->headerLine('Next step');
+-
+         switch ($dropping) {
+             case true:
+                 $this->writeLine('Re-checking for artefacts');
+-                $request->offsetUnset('dropping');
+-                $this->run($request);
++                // @TODO (SS6 upgrade) - recursively re-running the task is not supported in the new architecture
++                // Re-run the task manually if needed
+                 break;
+             case false:
+                 $this->writeLine('Delete the artefacts (IRREVERSIBLE!):');
+                 $this->writeLine('');
+-                $this->writeLine('- vendor/bin/sake dev/tasks/' . self::$segment . ' dropping=1');
+-                $this->writeLine('- vendor/bin/sake dev/tasks/' . self::$segment . ' dropping=1 ifexists=1');
++                $commandName = static::$commandName;
++                $this->writeLine("- vendor/bin/sake tasks:{$commandName} --dropping");
++                $this->writeLine("- vendor/bin/sake tasks:{$commandName} --dropping --ifexists");
+                 break;
+         }
++
++        return Command::SUCCESS;
+     }
+ 
+     /**
+@@ -168,23 +174,21 @@ class ArtefactCleanTask extends BuildTask
+         return $query;
+     }
+ 
+-    private function headerLine(string $message): void
++    public function getOptions(): array
+     {
+-        if (Director::is_cli()) {
+-            echo CLI::text("\n## {$message} ##\n", 'cyan');
+-            return;
+-        }
++        return [
++            new InputOption('dropping', 'd', InputOption::VALUE_NONE, 'Execute the drop queries (IRREVERSIBLE!)'),
++            new InputOption('ifexists', 'i', InputOption::VALUE_NONE, 'Add "IF EXISTS" clause to drop statements'),
++        ];
++    }
+ 
+-        echo CLI::text(sprintf('<strong>%s</strong>', $message));
++    private function headerLine(string $message): void
++    {
++        $this->output->writeln(sprintf('<info>## %s ##</info>', $message));
+     }
+ 
+     private function writeLine(string $message): void
+     {
+-        if (Director::is_cli()) {
+-            echo CLI::text($message . PHP_EOL, 'yellow');
+-            return;
+-        }
+-
+-        echo CLI::text(sprintf('<p>%s</p>', $message));
++        $this->output->writeln($message);
+     }
+ }
